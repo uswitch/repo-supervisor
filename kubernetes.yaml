@@ -1,0 +1,66 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: repo-supervisor
+  namespace: cloud
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      labels:
+        app: repo-supervisor
+    spec:
+      containers:
+      - name: repo-supervisor
+        image: registry.usw.co/uswitch/repo-supervisor:{{ .Env.DRONE_COMMIT }}
+        ports:
+        - containerPort: 7070
+        env:
+        - name: HOST
+          value: "0.0.0.0"
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: ssl-certs-host
+          readOnly: true
+        resources:
+          requests:
+            memory: 128M
+            cpu: 10m
+          limits:
+            memory: 256M
+            cpu: 100m
+      volumes:
+      - hostPath:
+          path: /usr/share/ca-certificates
+        name: ssl-certs-host
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: repo-supervisor
+  namespace: cloud
+spec:
+  ports:
+  - port: 80
+    targetPort: 7070
+    protocol: TCP
+  selector:
+    app: repo-supervisor
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: repo-supervisor
+  namespace: cloud
+spec:
+  rules:
+  - host: repo-supervisor.usw.co
+    http:
+      paths:
+      - backend:
+          serviceName: repo-supervisor
+          servicePort: 80
+        path: /
