@@ -13,7 +13,11 @@ pipeline:
     when:
       event: push
       branch: master
-    image: registry.usw.co/uswitch/repo-supervisor:latest
+    image: registry.usw.co/drone/deployment:latest
+    secrets: [ KUBE_CLUSTERS ]
+    tag: false
     kubernetes:
       namespace: cloud
       template: kubernetes.yaml
+      clusters:
+        - blue
