@@ -1,0 +1,19 @@
+pipeline:
+  publish:
+    when:
+      event: push
+      branch: master
+    image: plugins/docker
+    repo: registry.usw.co/uswitch/repo-supervisor
+    tags:
+      - latest
+      - "${DRONE_COMMIT}"
+
+  deploy:
+    when:
+      event: push
+      branch: master
+    image: registry.usw.co/uswitch/repo-supervisor:latest
+    kubernetes:
+      namespace: cloud
+      template: kubernetes.yaml
