@@ -26,6 +26,8 @@ spec:
         - mountPath: /etc/ssl/certs
           name: ssl-certs-host
           readOnly: true
+        - name: config-file
+          mountPath: /opt/repo-supervisor/.config.json
         resources:
           requests:
             memory: 128M
@@ -37,6 +39,9 @@ spec:
       - hostPath:
           path: /usr/share/ca-certificates
         name: ssl-certs-host
+      - name: config-file
+        configMap:
+          name: config-file
 
 ---
 apiVersion: v1
@@ -68,3 +73,12 @@ spec:
           serviceName: repo-supervisor
           servicePort: 80
         path: /
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: config-file
+  namespace: cloud
+data:
+  config.json: |
+    { "SlackURL": "{{ .Env.SLACK_WEBHOOK }}" }
