@@ -8,9 +8,9 @@ module.exports = ({
     // Get list of files in a specific pull request
     service.pullRequests.getFiles({ owner, repo, number: pullRequestId })
     .then((resp) => {
-      const exts = config.pullRequests.allowedExtensions;
+      const exts = config.pullRequests.disAllowedExtensions;
       const paths = config.pullRequests.excludedPaths;
-      const files = resp.data.filter(file => exts.indexOf(path.parse(file.filename).ext) > -1)
+      const files = resp.data.filter(file => !exts.indexOf(path.parse(file.filename).ext) > -1)
                         .filter((file) => {
                           const len = paths.length;
                           return paths.filter(r => !file.filename.match(RegExp(r))).length === len;
