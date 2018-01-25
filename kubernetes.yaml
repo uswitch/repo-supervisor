@@ -55,6 +55,8 @@ kind: Ingress
 metadata:
   name: repo-supervisor
   namespace: cloud
+  annotations:
+    kubernetes.io/ingress.class: external
 spec:
   rules:
   - host: repo-supervisor.usw.co
