@@ -14,7 +14,7 @@ pipeline:
       event: push
       branch: master
     image: registry.usw.co/drone/deployment:latest
-    secrets: [ KUBE_CLUSTERS, GITHUB_TOKEN ]
+    secrets: [ KUBE_CLUSTERS, GITHUB_TOKEN, SLACK_WEBHOOK ]
     tag: false
     kubernetes:
       namespace: cloud
