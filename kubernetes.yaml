@@ -20,6 +20,8 @@ spec:
         env:
         - name: HOST
           value: "0.0.0.0"
+        - name: GITHUB_TOKEN
+          value: {{ .Env.GITHUB_TOKEN }}
         volumeMounts:
         - mountPath: /etc/ssl/certs
           name: ssl-certs-host
