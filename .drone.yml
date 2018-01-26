@@ -20,4 +20,4 @@ pipeline:
       namespace: cloud
       template: kubernetes.yaml
       clusters:
-        - blue
+        - red
