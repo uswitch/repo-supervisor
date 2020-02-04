@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -99,8 +100,8 @@ spec:
           serviceName: repo-supervisor
           servicePort: 80
         path: /
----
 kind: ConfigMap
+---
 apiVersion: v1
 metadata:
   name: supervisor-config-file
