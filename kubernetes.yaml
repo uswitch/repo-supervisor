@@ -1,29 +1,53 @@
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
+  creationTimestamp: null
+  labels:
+    app: repo-supervisor
   name: repo-supervisor
   namespace: cloud
 spec:
+  progressDeadlineSeconds: 2147483647
   replicas: 2
   revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: repo-supervisor
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: repo-supervisor
     spec:
       containers:
-      - name: repo-supervisor
-        image: registry.usw.co/uswitch/repo-supervisor:{{ .Env.DRONE_COMMIT }}
-        ports:
-        - containerPort: 7070
-        env:
+      - env:
         - name: HOST
-          value: "0.0.0.0"
+          value: 0.0.0.0
         - name: GITHUB_TOKEN
           value: {{ .Env.GITHUB_TOKEN }}
         - name: JWT_SECRET
           value: {{ .Env.GITHUB_TOKEN }}
+        image: registry.usw.co/uswitch/repo-supervisor:{{ .Env.DRONE_COMMIT }}
+        imagePullPolicy: IfNotPresent
+        name: repo-supervisor
+        ports:
+        - containerPort: 7070
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 256M
+          requests:
+            cpu: 10m
+            memory: 128M
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /etc/ssl/certs
           name: ssl-certs-host
@@ -31,21 +55,21 @@ spec:
         - mountPath: /opt/repo-supervisor/.config.json
           name: supervisor-config-file
           subPath: .config.json
-        resources:
-          requests:
-            memory: 128M
-            cpu: 10m
-          limits:
-            memory: 256M
-            cpu: 100m
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
       volumes:
       - hostPath:
           path: /usr/share/ca-certificates
+          type: ""
         name: ssl-certs-host
-      - name: supervisor-config-file
-        configMap:
+      - configMap:
+          defaultMode: 420
           name: supervisor-config-file
-
+        name: supervisor-config-file
+status: {}
 ---
 apiVersion: v1
 kind: Service
